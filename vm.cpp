@@ -45,9 +45,9 @@ std::string antiAssembler(const std::string &code) {
     else if (code == "00000011") return "mul";
     else if (code == "00000100") return "ifsm";
     else if (code == "00000101") return "set";
-    else if (code == "11111011") return "jmp";
-    else if (code == "11111100") return "input";
-    else if (code == "11111101") return "output";
+    else if (code == "11001101") return "jmp";
+    else if (code == "11001110") return "input";
+    else if (code == "11001111") return "output";
     else if (code == "11111110") return "load";
     else if (code == "11111111") return "store";
     else {
@@ -99,6 +99,16 @@ int isRCode(std::string code) {
     }
     return 0;
 }
+std::vector<std::string> ICode = {
+//  output      input       jmp
+    "11001111", "11001110", "11001101"
+};
+int isICode(std::string code) {
+    for (auto i_code : ICode) {
+        if (code == i_code) return 1;
+    }
+    return 0;
+}
 void deRCode(const std::string &number, int opt_number[]) {
     int result0 = 0, result1 = 0;
     for (int i = 0; i <= 3; ++i) result0 = result0 * 2 + number[i] - '0';
@@ -106,12 +116,15 @@ void deRCode(const std::string &number, int opt_number[]) {
     opt_number[0] = result0;
     opt_number[1] = result1;
 }
-void deMCode(const std::string number, int opt_number[]) {
+void deMCode(const std::string &number, int opt_number[]) {
     int result = 0;
     for (int i = 0; i <= 7; ++i) result = result * 2 + number[i] - '0';
     opt_number[0] = result;
 }
-void runCode(const std::string code, const int opt_number[]) {
+void deICode(const std::string &number, int opt_number[]) {
+    deMCode(number, opt_number);
+}
+void runCode(const std::string &code, const int opt_number[]) {
     if (!ok) ok = 1;
     else if (code == "00000000") reg[opt_number[0]] = reg[opt_number[1]];           // mov
     else if (code == "00000001") reg[opt_number[0]] += reg[opt_number[1]];          // add
@@ -119,9 +132,9 @@ void runCode(const std::string code, const int opt_number[]) {
     else if (code == "00000011") reg[opt_number[0]] *= reg[opt_number[1]];          // mul
     else if (code == "00000100") ok = reg[opt_number[0]] < reg[opt_number[1]];      // ifsm
     else if (code == "00000101") reg[opt_number[0]] = opt_number[1];                // set
-    else if (code == "11111011") pc = opt_number[0] - 1;                            // jmp
-    else if (code == "11111100") reg[opt_number[0]] = getInput();                   // input
-    else if (code == "11111101") output(reg[opt_number[0]]);                        // output
+    else if (code == "11001101") pc = opt_number[0] - 1;                            // jmp
+    else if (code == "11001110") reg[opt_number[0]] = getInput();                   // input
+    else if (code == "11001111") output(reg[opt_number[0]]);                        // output
     else if (code == "11111110") reg[0] = mem[opt_number[0]];                       // load
     else if (code == "11111111") mem[opt_number[0]] = reg[0];                       // store
     else {
@@ -202,6 +215,7 @@ int main(int argc, const char *argv[]) {
         _code = code[pc];
         _number = number[pc];
         if (isRCode(_code)) deRCode(_number, opt_number);
+        else if (isICode(_code)) deICode(_number, opt_number);
         else deMCode(_number, opt_number);
 
         if (__LOCALDEBUG__) showDebugInfo(_code, opt_number);

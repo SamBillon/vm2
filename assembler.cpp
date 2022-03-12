@@ -32,11 +32,18 @@ int isRCode(std::string code) {
     }
     return 0;
 }
+std::vector<std::string> ICode = {
+    "input", "output", "jmp"
+};
+int isICode(std::string code) {
+    for (auto i_code : ICode) {
+        if (code == i_code) return 1;
+    }
+    return 0;
+}
 int lenNumber(std::string code) {
     if      (isRCode(code))     return 2;
-    else if (code == "jmp")     return 1;
-    else if (code == "input")   return 1;
-    else if (code == "output")  return 1;
+    else if (isICode(code))     return 1;
     else if (code == "load")    return 2;
     else if (code == "store")   return 2;
     else {
@@ -51,9 +58,9 @@ std::string encode(const std::string &code) {
     else if (code == "mul")     return "00000011";
     else if (code == "ifsm")    return "00000100";
     else if (code == "set")     return "00000101";
-    else if (code == "jmp")     return "11111011";
-    else if (code == "input")   return "11111100";
-    else if (code == "output")  return "11111101";
+    else if (code == "jmp")     return "11001101";
+    else if (code == "input")   return "11001110";
+    else if (code == "output")  return "11001111";
     else if (code == "load")    return "11111110";
     else if (code == "store")   return "11111111";
     else {
